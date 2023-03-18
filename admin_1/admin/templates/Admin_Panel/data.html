@@ -1,0 +1,191 @@
+
+{% include 'navbar.html' %}
+{% include 'header.html' %}
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+<meta charset="utf-8">
+<title>chatsjs</title>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+
+<!-- jQuery library -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+<!-- Latest compiled JavaScript -->
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
+<link href="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/css/bootstrap.min.css" rel="stylesheet" id="bootstrap-css">
+<script src="//maxcdn.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+<!------ Include the above in your HEAD tag ---------->
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css
+">
+</head>
+<body class="container-fluid-expand">
+<div class="container" style="margin-top:70px;"> 
+
+<hr />
+<div class="jumbotron">
+<div class="row w-3">
+		<div class="col-md-6" >
+				<div class="card border-info mx-sm-1 p-3">
+					<!-- <div class="card border-info shadow text-info p-3 my-card" ><span class="fa fa-car" aria-hidden="true"></span></div> -->
+					<div class="text-info text-center mt-3"><h2><b>Total Amount</b></h2><br><br><br></div>
+					<div class="text-info text-center mt-2"><h2>Rs.{{finalamt}}</h2></div>
+				</div>
+		</div>
+		<div class="col-md-6">
+				<div class="card border-info mx-sm-1 p-3">
+					<!-- <div class="card border-info shadow text-info p-3 my-card" ><span class="fa fa-car" aria-hidden="true"></span></div> -->
+					<div class="text-info text-center mt-3"><h2><b>Total water consumed</b></h2><br><br><br></div>
+					<div class="text-info text-center mt-2"><h2>{{finalvol}} Liters</h2></div>
+				</div>
+		</div>
+	</div>
+</div>
+<br><br><br> 
+<div class="jumbotron jumbotron-fluid">   
+<div class="text-info text-center mt-4"><h2><b>Time vs Volume Graph</b></h2><br><br><br></div>
+<div class="row w-100"> 
+	
+	<div class="col-md-6" style="margin: auto;">
+	<canvas id="myChartline"></canvas>
+	</div>
+</div>  
+</div>
+
+<br><br><br>
+<div class="jumbotron jumbotron-fluid">
+<div class="display_table">
+<table class='table table-bordered '>
+	<thead class="table-dark">
+	  <tr>
+		<th scope="col">S.NO</th>
+		<th scope="col">Volume</th>
+		<th scope="col">Time</th>
+		<!--<th scope="col">Handle</th> -->
+	  </tr>
+	</thead>
+	<tbody>
+	
+		{% for volume,time in zipped %}
+	  <tr>
+		<td>{{forloop.counter}}</td>
+		<td>{{volume|stringformat:".2f"}}</td>  
+		<td>{{time}}</td>
+	  </tr> 
+	  {% endfor %}
+
+	</tbody>
+  </table>
+</div>
+</div>
+
+ 
+ 
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.8.0"></script>
+
+<script>
+	var endpoint = '/api';
+
+	$.ajax({
+	method: "GET",
+	url: endpoint,
+	success: function(data) {
+		drawLineGraph(data, 'myChartline');
+		drawBarGraph(data, 'myChartBar');
+		console.log("drawing");
+	},
+	error: function(error_data) {
+		console.log(error_data);
+	}
+	})
+
+
+	function drawLineGraph(data, id) {
+	var labels = data.labels;
+	var chartLabel = data.chartLabel;
+	var chartdata = data.chartdata;
+	var ctx = document.getElementById(id).getContext('2d');
+	var chart = new Chart(ctx, {
+		// The type of chart we want to create
+		type: 'line',
+
+		// The data for our dataset
+		data: {
+		labels: labels,
+		datasets: [{
+			label: chartLabel,
+			backgroundColor: 'rgb(255, 100, 100)',
+			borderColor: 'rgb(55, 99, 132)',
+			data: chartdata,
+		}]
+		},
+
+		// Configuration options go here
+		options: {
+		scales: {
+			xAxes: [{
+			display: true
+			}],
+			yAxes: [{
+			ticks: {
+				beginAtZero: true
+			}
+			}]
+		}
+		}
+
+	});
+	}
+
+	function drawBarGraph(data, id) {
+	var labels = data.labels;
+	var chartLabel = data.chartLabel;
+	var chartdata = data.chartdata;
+	var ctx = document.getElementById(id).getContext('2d');
+	var myChart = new Chart(ctx, {
+		type: 'bar',
+		data: {
+		labels: labels,
+		datasets: [{
+			label: chartLabel,
+			data: chartdata,
+			backgroundColor: [
+			'rgba(255, 99, 132, 0.2)',
+			'rgba(54, 162, 235, 0.2)',
+			'rgba(255, 206, 86, 0.2)',
+			'rgba(75, 192, 192, 0.2)',
+			'rgba(153, 102, 255, 0.2)',
+			'rgba(255, 159, 64, 0.2)'
+			],
+			borderColor: [
+			'rgba(255, 99, 132, 1)',
+			'rgba(54, 162, 235, 1)',
+			'rgba(255, 206, 86, 1)',
+			'rgba(75, 192, 192, 1)',
+			'rgba(153, 102, 255, 1)',
+			'rgba(255, 159, 64, 1)'
+			],
+			borderWidth: 1
+		}]
+		},
+		options: {
+		scales: {
+			yAxes: [{
+			ticks: {
+				beginAtZero: true
+			}
+			}]
+		}
+		}
+	});
+	}
+</script>
+</div>
+</body>
+
+</html>
+ 
